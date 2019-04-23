@@ -36,13 +36,13 @@ class MyDataset(data.Dataset):
             numpy.pad(a, (0, maxlen - len(a)), mode="constant", constant_values=0) for a in labels
         ]
 
-        text_tensor = torch.zeros(maxlen, batch_size, len(VOCAB))
+        text_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
         for i, text in enumerate(texts):
-            text_tensor[range(maxlen), i, [VOCAB.find(c) for c in text]] = 1
+            text_tensor[:, i] = torch.LongTensor([VOCAB.find(c) for c in text])
 
-        truth_tensor = torch.zeros(maxlen, batch_size, 4)
+        truth_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
         for i, label in enumerate(labels):
-            truth_tensor[range(maxlen), i, label] = 1
+            truth_tensor[:, i] = torch.LongTensor(label)
 
         return text_tensor, truth_tensor
 
@@ -58,13 +58,13 @@ class MyDataset(data.Dataset):
             numpy.pad(a, (0, maxlen - len(a)), mode="constant", constant_values=0) for a in labels
         ]
 
-        text_tensor = torch.zeros(maxlen, batch_size, len(VOCAB))
+        text_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
         for i, text in enumerate(texts):
-            text_tensor[range(maxlen), i, [VOCAB.find(c) for c in text]] = 1
+            text_tensor[:, i] = torch.LongTensor([VOCAB.find(c) for c in text])
 
-        truth_tensor = torch.zeros(maxlen, batch_size, 4)
+        truth_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
         for i, label in enumerate(labels):
-            truth_tensor[range(maxlen), i, label] = 1
+            truth_tensor[:, i] = torch.LongTensor(label)
 
         return text_tensor, truth_tensor
 
@@ -158,6 +158,6 @@ def color_print(text, text_class):
 if __name__ == "__main__":
     colorama.init()
     dataset = MyDataset()
-    text, truth = dataset.get_val_data()
+    text, truth = dataset.get_train_data()
     print(text)
     print(truth)
