@@ -20,7 +20,7 @@ def main():
     model = MyModel0(len(VOCAB), 16, 128).to(args.device)
     dataset = MyDataset("data/data_dict.pth", args.device)
 
-    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.1, 1, 1.2, 0.8]))
+    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.1, 1, 1.2, 0.8], device=args.device))
     optimizer = optim.Adam(model.parameters())
 
     for _ in range(args.max_epoch // args.val_per):
