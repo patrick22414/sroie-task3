@@ -17,12 +17,14 @@ VOCAB = ascii_uppercase + digits + punctuation + " \t\n"
 
 
 class MyDataset(data.Dataset):
-    def __init__(self, dict_path="data/data_dict.pth", val_size=76):
+    def __init__(self, dict_path="data/data_dict.pth", device="cpu", val_size=76):
         data_items = list(torch.load(dict_path).items())
         random.shuffle(data_items)
 
         self.val_dict = dict(data_items[:val_size])
         self.train_dict = dict(data_items[val_size:])
+
+        self.device = device
 
     def get_train_data(self, batch_size=8):
         samples = random.sample(self.train_dict.keys(), batch_size)
@@ -44,13 +46,13 @@ class MyDataset(data.Dataset):
         for i, label in enumerate(labels):
             truth_tensor[:, i] = torch.LongTensor(label)
 
-        return text_tensor, truth_tensor
+        return text_tensor.to(self.device), truth_tensor.to(self.device)
 
-    def get_val_data(self, batch_size=8):
-        samples = random.sample(self.val_dict.keys(), batch_size)
+    def get_val_data(self, batch_size=8, device="cpu"):
+        keys = random.sample(self.val_dict.keys(), batch_size)
 
-        texts = [self.val_dict[k][0] for k in samples]
-        labels = [self.val_dict[k][1] for k in samples]
+        texts = [self.val_dict[k][0] for k in keys]
+        labels = [self.val_dict[k][1] for k in keys]
 
         maxlen = max(len(s) for s in texts)
         texts = [s.ljust(maxlen, " ") for s in texts]
@@ -66,7 +68,7 @@ class MyDataset(data.Dataset):
         for i, label in enumerate(labels):
             truth_tensor[:, i] = torch.LongTensor(label)
 
-        return text_tensor, truth_tensor
+        return keys, text_tensor.to(self.device), truth_tensor.to(self.device)
 
 
 def get_files(data_path="data/"):
@@ -140,6 +142,7 @@ def create_data(data_path="tmp/data/"):
 
 
 def color_print(text, text_class):
+    colorama.init()
     for c, n in zip(text, text_class):
         if n == 1:
             print(Fore.RED + c, end="")
@@ -156,7 +159,6 @@ def color_print(text, text_class):
 
 
 if __name__ == "__main__":
-    colorama.init()
     dataset = MyDataset()
     text, truth = dataset.get_train_data()
     print(text)
