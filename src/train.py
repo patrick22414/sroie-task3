@@ -12,26 +12,30 @@ def main():
     parser.add_argument("-d", "--device", default="cpu")
     parser.add_argument("-b", "--batch_size", type=int, default=8)
     parser.add_argument("-e", "--max_epoch", type=int, default=1000)
-    parser.add_argument("-v", "--val-per", type=int, default=100)
+    parser.add_argument("-v", "--val-at", type=int, default=100)
+    parser.add_argument("-i", "--hidden-size", type=int, default=256)
 
     args = parser.parse_args()
     args.device = torch.device(args.device)
 
-    model = MyModel0(len(VOCAB), 16, 128).to(args.device)
+    model = MyModel0(len(VOCAB), 16, args.hidden_size).to(args.device)
+
     dataset = MyDataset("data/data_dict.pth", args.device)
 
     criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.1, 1, 1.2, 0.8], device=args.device))
     optimizer = optim.Adam(model.parameters())
 
-    for _ in range(args.max_epoch // args.val_per):
-        train(model, dataset, criterion, optimizer, max_epoch=args.val_per)
+    for i in range(args.max_epoch // args.val_at):
+        train(model, dataset, criterion, optimizer, (i * args.val_at + 1, (i + 1) * args.val_at + 1))
         validate(model, dataset)
 
+    validate(model, dataset, batch_size=10)
 
-def validate(model, dataset):
+
+def validate(model, dataset, batch_size=1):
     model.eval()
     with torch.no_grad():
-        keys, text, truth = dataset.get_val_data(batch_size=1)
+        keys, text, truth = dataset.get_val_data(batch_size=batch_size)
 
         pred = model(text)
 
@@ -40,13 +44,11 @@ def validate(model, dataset):
             print_text_class = pred[:, i][: len(print_text)].cpu().numpy()
             color_print(print_text, print_text_class)
 
-        # print(pred[:, 0])
 
-
-def train(model, dataset, criterion, optimizer, max_epoch):
+def train(model, dataset, criterion, optimizer, epoch_range):
     model.train()
 
-    for epoch in range(1, max_epoch + 1):
+    for epoch in range(*epoch_range):
         optimizer.zero_grad()
 
         text, truth = dataset.get_train_data(batch_size=8)
@@ -57,7 +59,7 @@ def train(model, dataset, criterion, optimizer, max_epoch):
 
         optimizer.step()
 
-        print(loss.item())
+        print(f"#{epoch:04d} | Loss: {loss.item():.4f}")
 
 
 if __name__ == "__main__":
