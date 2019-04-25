@@ -5,6 +5,7 @@ from torch import nn, optim
 
 from my_data import VOCAB, MyDataset, color_print
 from my_models import MyModel0
+from my_utils import pred_to_dict
 
 
 def main():
@@ -45,12 +46,17 @@ def validate(model, dataset, batch_size=1):
     with torch.no_grad():
         keys, text, truth = dataset.get_val_data(batch_size=batch_size)
 
-        pred = model(text)
+        oupt = model(text)
+        prob = torch.nn.functional.softmax(oupt, dim=2)
+        pred = torch.argmax(prob, dim=2)
 
         for i, key in enumerate(keys):
-            print_text, _ = dataset.val_dict[key]
-            print_text_class = pred[:, i][: len(print_text)].cpu().numpy()
-            color_print(print_text, print_text_class)
+            real_text, _ = dataset.val_dict[key]
+            result = pred_to_dict(real_text, pred[:, i], prob[:, i])
+            for k, v in result.items():
+                print(f"{k:>8}: {v}")
+            # print_text_class = pred[:, i][: len(print_text)].cpu().numpy()
+            # color_print(print_text, print_text_class)
 
 
 def train(model, dataset, criterion, optimizer, epoch_range, batch_size):
