@@ -52,7 +52,7 @@ def validate(model, dataset, batch_size=1):
 
         for i, key in enumerate(keys):
             real_text, _ = dataset.val_dict[key]
-            result = pred_to_dict(real_text, pred[:, i], prob[:, i])
+            result = pred_to_dict(real_text, pred[:, i].cpu().numpy(), prob[:, i].cpu().numpy())
             for k, v in result.items():
                 print(f"{k:>8}: {v}")
             # print_text_class = pred[:, i][: len(print_text)].cpu().numpy()
