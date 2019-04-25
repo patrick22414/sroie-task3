@@ -57,9 +57,8 @@ def validate(model, dataset, batch_size=1):
             for k, v in result.items():
                 print(f"{k:>8}: {v}")
 
-            print()
-            # print_text_class = pred[:, i][: len(print_text)].cpu().numpy()
-            # color_print(print_text, print_text_class)
+            # print_text_class = pred[:, i][: len(real_text)].cpu().numpy()
+            color_print(real_text, pred[:, i].cpu().numpy())
 
 
 def train(model, dataset, criterion, optimizer, epoch_range, batch_size):
