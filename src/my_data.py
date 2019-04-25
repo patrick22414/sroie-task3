@@ -12,6 +12,7 @@ from colorama import Fore
 from torch.utils import data
 
 from my_classes import TextBox, TextLine
+from my_utils import robust_padding
 
 VOCAB = ascii_uppercase + digits + punctuation + " \t\n"
 
@@ -32,11 +33,7 @@ class MyDataset(data.Dataset):
         texts = [self.train_dict[k][0] for k in samples]
         labels = [self.train_dict[k][1] for k in samples]
 
-        maxlen = max(len(s) for s in texts)
-        texts = [s.ljust(maxlen, " ") for s in texts]
-        labels = [
-            numpy.pad(a, (0, maxlen - len(a)), mode="constant", constant_values=0) for a in labels
-        ]
+        robust_padding(texts, labels)
 
         text_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
         for i, text in enumerate(texts):
