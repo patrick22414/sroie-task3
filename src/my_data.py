@@ -35,6 +35,8 @@ class MyDataset(data.Dataset):
 
         robust_padding(texts, labels)
 
+        maxlen = max(len(t) for t in texts)
+
         text_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
         for i, text in enumerate(texts):
             text_tensor[:, i] = torch.LongTensor([VOCAB.find(c) for c in text])
