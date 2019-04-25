@@ -17,7 +17,7 @@ def pred_to_dict(text, pred, prob):
             continue
 
         new_key = keys[pred_class]
-        new_prob = prob[seps[i] : seps[i + 1]].mean()
+        new_prob = prob[seps[i] : seps[i + 1]].max()
         if new_prob > res[new_key][1]:
             res[new_key] = (text[seps[i] : seps[i + 1]], new_prob)
 
