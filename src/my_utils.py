@@ -12,12 +12,12 @@ def pred_to_dict(text, pred, prob):
 
     seps = [0] + (numpy.nonzero(numpy.diff(pred))[0] + 1).tolist() + [len(pred)]
     for i in range(len(seps) - 1):
-        new_key = keys[pred[seps[i]]]
+        new_key = keys[pred[seps[i]] - 1]
         new_prob = prob[seps[i] : seps[i + 1]].mean()
         if new_prob > res[new_key][1]:
             res[new_key] = (text[seps[i] : seps[i + 1]], new_prob)
 
-    return {k: regex.sub(r"[\t\n]", " ", v[0].strip()) for k, v in res}
+    return {k: regex.sub(r"[\t\n]", " ", v[0].strip()) for k, v in res.items()}
 
 
 def compare_truth(pred_dict, truth_dict):
