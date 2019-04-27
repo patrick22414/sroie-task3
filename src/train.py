@@ -21,9 +21,9 @@ def main():
 
     model = MyModel0(len(VOCAB), 16, args.hidden_size).to(args.device)
 
-    dataset = MyDataset("data/data_dict.pth", args.device)
+    dataset = MyDataset("data/data_dict4.pth", args.device)
 
-    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.1, 1, 1.2, 0.8], device=args.device))
+    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.1, 1, 1.2, 0.8, 1.5], device=args.device))
     optimizer = optim.Adam(model.parameters())
     scheduler = optim.lr_scheduler.StepLR(optimizer, 1000)
 
@@ -70,7 +70,7 @@ def train(model, dataset, criterion, optimizer, epoch_range, batch_size):
         text, truth = dataset.get_train_data(batch_size=batch_size)
         pred = model(text)
 
-        loss = criterion(pred.view(-1, 4), truth.view(-1))
+        loss = criterion(pred.view(-1, 5), truth.view(-1))
         loss.backward()
 
         optimizer.step()

@@ -100,7 +100,6 @@ def sort_text(txt_file):
 
 
 def create_data(data_path="tmp/data/"):
-    raise DeprecationWarning
 
     json_files, txt_files = get_files(data_path)
     keys = [path.splitext(f.name)[0] for f in json_files]
@@ -116,25 +115,35 @@ def create_data(data_path="tmp/data/"):
 
         text_class = numpy.zeros(len(text), dtype=int)
 
+        print()
+        print(json_file.path, txt_file.path)
         for i, k in enumerate(iter(key_info)):
-            if k == "total":
-                continue
-
             v = key_info[k]
-            if not v in text_space:
-                s = None
-                e = 0
-                while s is None and e < 3:
-                    e += 1
-                    s = regex.search("(" + v + "){e<=" + str(e) + "}", text_space)
-                v = s[0]
+            if k == "total":
+                s = regex.search(r"(\bTOTAL[^C]*ROUND[^C]*)(" + v + r")(\b)", text_space)
+                if s is None:
+                    s = regex.search(r"(\bTOTAL[^C]*)(" + v + r")(\b)", text_space)
+                    if s is None:
+                        s = regex.search(r"(\b)(" + v + r")(\b)", text_space)
+                        if s is None:
+                            s = regex.search(r"()(" + v + r")()", text_space)
+                v = s[2]
+                text_class[range(*s.span(2))] = i + 1
+            else:
+                if not v in text_space:
+                    s = None
+                    e = 0
+                    while s is None and e < 3:
+                        e += 1
+                        s = regex.search(r"(\b" + v + r"\b){e<=" + str(e) + r"}", text_space)
+                    v = s[0]
 
-            pos = text_space.find(v)
-            text_class[pos : pos + len(v)] = i + 1
+                pos = text_space.find(v)
+                text_class[pos : pos + len(v)] = i + 1
 
         data_dict[key] = (text, text_class)
 
-        print(txt_file.path)
+        # print(txt_file.path)
         # color_print(text, text_class)
 
     return keys, data_dict
@@ -158,7 +167,19 @@ def color_print(text, text_class):
 
 
 if __name__ == "__main__":
-    dataset = MyDataset()
-    text, truth = dataset.get_train_data()
-    print(text)
-    print(truth)
+    # dataset = MyDataset("data/data_dict2.pth")
+    # text, truth = dataset.get_train_data()
+    # print(text)
+    # print(truth)
+    # dict3 = torch.load("data/data_dict3.pth")
+    # for k in dict3.keys():
+    #     text, text_class = dict3[k]
+    #     color_print(text, text_class)
+
+    keys, data_dict = create_data()
+    torch.save(data_dict, "data/data_dict4.pth")
+
+    # s = "START 0 TOTAL:1.00, START TOTAL: 1.00 END"
+    # rs = regex.search(r"(\sTOTAL.*)(1.00)(\s)", s)
+    # for i in range(len(rs)):
+    #     print(repr(rs[i]), rs.span(i))
