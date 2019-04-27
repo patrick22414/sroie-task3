@@ -42,9 +42,9 @@ def main():
             (i * args.val_at + 1, (i + 1) * args.val_at + 1),
             args.batch_size,
         )
-        validate(model, dataset)
+        # validate(model, dataset)
 
-    validate(model, dataset, batch_size=10)
+    # validate(model, dataset, batch_size=10)
 
     torch.save(model.state_dict(), "model.pth")
 
