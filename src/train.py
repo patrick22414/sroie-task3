@@ -53,7 +53,7 @@ def main():
         for key in dataset.test_dict.keys():
             text_tensor = dataset.get_test_data(key)
 
-            oupt = model(text)
+            oupt = model(text_tensor)
             prob = torch.nn.functional.softmax(oupt, dim=2)
             prob, pred = torch.max(prob, dim=2)
 
