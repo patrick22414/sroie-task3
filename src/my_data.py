@@ -126,11 +126,7 @@ def create_test_data():
 
     test_dict = {}
     for k, f in zip(keys, files):
-        try:
-            test_dict[k] = sort_text(f)
-        except ValueError as e:
-            print(f)
-            raise e
+        test_dict[k] = sort_text(f)
 
     torch.save(test_dict, "data/test_dict.pth")
 
