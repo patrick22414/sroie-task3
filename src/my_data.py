@@ -19,11 +19,15 @@ VOCAB = ascii_uppercase + digits + punctuation + " \t\n"
 
 class MyDataset(data.Dataset):
     def __init__(self, dict_path="data/data_dict.pth", device="cpu", val_size=76, test_path=None):
-        data_items = list(torch.load(dict_path).items())
-        random.shuffle(data_items)
+        if dict_path is None:
+            self.val_dict = {}
+            self.train_dict = {}
+        else:
+            data_items = list(torch.load(dict_path).items())
+            random.shuffle(data_items)
 
-        self.val_dict = dict(data_items[:val_size])
-        self.train_dict = dict(data_items[val_size:])
+            self.val_dict = dict(data_items[:val_size])
+            self.train_dict = dict(data_items[val_size:])
 
         if test_path is None:
             self.test_dict = {}
@@ -34,7 +38,8 @@ class MyDataset(data.Dataset):
 
     def get_test_data(self, key):
         text = self.test_dict[key]
-        text_tensor = torch.LongTensor([VOCAB.find(c) for c in text]).unsqueeze(1)
+        text_tensor = torch.zeros(len(text), 1, dtype=torch.long)
+        text_tensor[:, 0] = torch.LongTensor([VOCAB.find(c) for c in text])
 
         return text_tensor.to(self.device)
 
