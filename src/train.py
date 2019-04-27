@@ -1,4 +1,5 @@
 import argparse
+import json
 
 import torch
 from torch import nn, optim
@@ -21,9 +22,11 @@ def main():
 
     model = MyModel0(len(VOCAB), 16, args.hidden_size).to(args.device)
 
-    dataset = MyDataset("data/data_dict4.pth", args.device)
+    dataset = MyDataset("data/data_dict4.pth", args.device, test_path="data/test_dict.pth")
 
-    criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.1, 1, 1.2, 0.8, 1.5], device=args.device))
+    criterion = nn.CrossEntropyLoss(
+        weight=torch.tensor([0.1, 1, 1.2, 0.8, 1.5], device=args.device)
+    )
     optimizer = optim.Adam(model.parameters())
     scheduler = optim.lr_scheduler.StepLR(optimizer, 1000)
 
@@ -38,7 +41,18 @@ def main():
         )
         validate(model, dataset)
 
-    validate(model, dataset, batch_size=10)
+    # validate(model, dataset, batch_size=10)
+
+    torch.save(model.state_dict(), "model.pth")
+
+    for key in dataset.test_dict.keys():
+        text_tensor = dataset.get_test_data(key)
+        pred = torch.argmax(torch.nn.functional.softmax(model(text_tensor), dim=2), dim=2)
+
+        real_text = dataset.test_dict[key]
+        result = pred_to_dict(real_text, pred[:, i].cpu().numpy(), prob[:, i].cpu().numpy())
+
+        json.dump(result, "results/" + key + ".json")
 
 
 def validate(model, dataset, batch_size=1):

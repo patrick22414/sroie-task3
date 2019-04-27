@@ -18,14 +18,25 @@ VOCAB = ascii_uppercase + digits + punctuation + " \t\n"
 
 
 class MyDataset(data.Dataset):
-    def __init__(self, dict_path="data/data_dict.pth", device="cpu", val_size=76):
+    def __init__(self, dict_path="data/data_dict.pth", device="cpu", val_size=76, test_path=None):
         data_items = list(torch.load(dict_path).items())
         random.shuffle(data_items)
 
         self.val_dict = dict(data_items[:val_size])
         self.train_dict = dict(data_items[val_size:])
 
+        if test_path is None:
+            self.test_dict = {}
+        else:
+            self.test_dict = torch.load(test_path)
+
         self.device = device
+
+    def get_test_data(self, key):
+        text = self.test_dict[key]
+        text_tensor = torch.LongTensor([VOCAB.find(c) for c in text]).unsqueeze(1)
+
+        return text_tensor.to(self.device)
 
     def get_train_data(self, batch_size=8):
         samples = random.sample(self.train_dict.keys(), batch_size)
@@ -99,6 +110,26 @@ def sort_text(txt_file):
     return "\n".join([str(text_line) for text_line in text_lines])
 
 
+def create_test_data():
+    keys = sorted(
+        path.splitext(f.name)[0]
+        for f in os.scandir("tmp/task3-test(347p)")
+        if f.name.endswith(".jpg")
+    )
+
+    files = ["tmp/text.task1&2-test(361p)/" + s + ".txt" for s in keys]
+
+    test_dict = {}
+    for k, f in zip(keys, files):
+        try:
+            test_dict[k] = sort_text(f)
+        except ValueError as e:
+            print(f)
+            raise e
+
+    torch.save(test_dict, "data/test_dict.pth")
+
+
 def create_data(data_path="tmp/data/"):
 
     json_files, txt_files = get_files(data_path)
@@ -167,6 +198,8 @@ def color_print(text, text_class):
 
 
 if __name__ == "__main__":
+    create_test_data()
+
     # dataset = MyDataset("data/data_dict2.pth")
     # text, truth = dataset.get_train_data()
     # print(text)
@@ -176,8 +209,8 @@ if __name__ == "__main__":
     #     text, text_class = dict3[k]
     #     color_print(text, text_class)
 
-    keys, data_dict = create_data()
-    torch.save(data_dict, "data/data_dict4.pth")
+    # keys, data_dict = create_data()
+    # torch.save(data_dict, "data/data_dict4.pth")
 
     # s = "START 0 TOTAL:1.00, START TOTAL: 1.00 END"
     # rs = regex.search(r"(\sTOTAL.*)(1.00)(\s)", s)
