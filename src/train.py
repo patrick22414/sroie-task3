@@ -51,26 +51,22 @@ def main():
     model.eval()
     with torch.no_grad():
         for key in dataset.test_dict.keys():
-            try:
-                text_tensor = dataset.get_test_data(key)
+            text_tensor = dataset.get_test_data(key)
 
-                oupt = model(text_tensor)
-                prob = torch.nn.functional.softmax(oupt, dim=2)
-                prob, pred = torch.max(prob, dim=2)
+            oupt = model(text_tensor)
+            prob = torch.nn.functional.softmax(oupt, dim=2)
+            prob, pred = torch.max(prob, dim=2)
 
-                prob = prob.squeeze().cpu().numpy()
-                pred = pred.squeeze().cpu().numpy()
+            prob = prob.squeeze().cpu().numpy()
+            pred = pred.squeeze().cpu().numpy()
 
-                real_text = dataset.test_dict[key]
-                result = pred_to_dict(real_text, pred, prob)
+            real_text = dataset.test_dict[key]
+            result = pred_to_dict(real_text, pred, prob)
 
-                with open("results/" + key + ".json", "w", encoding="utf-8") as json_opened:
-                    json.dump(result, json_opened, indent=4)
+            with open("results/" + key + ".json", "w", encoding="utf-8") as json_opened:
+                json.dump(result, json_opened, indent=4)
 
-                print(key)
-
-            except RuntimeError:
-                print(key, "RuntimeError encountered")
+            print(key)
 
 
 def validate(model, dataset, batch_size=1):
