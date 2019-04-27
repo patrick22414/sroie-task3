@@ -63,7 +63,8 @@ def main():
             real_text = dataset.test_dict[key]
             result = pred_to_dict(real_text, pred, prob)
 
-            json.dump(result, "results/" + key + ".json")
+            with open("results/" + key + ".json", "w", encoding="utf-8") as json_opened:
+                json.dump(result, json_opened)
 
 
 def validate(model, dataset, batch_size=1):
