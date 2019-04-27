@@ -16,7 +16,7 @@ def main():
     parser.add_argument("-e", "--max_epoch", type=int, default=1500)
     parser.add_argument("-v", "--val-at", type=int, default=100)
     parser.add_argument("-i", "--hidden-size", type=int, default=256)
-    parser.add_argument("--val_size", type=int, default=76)
+    parser.add_argument("--val-size", type=int, default=76)
 
     args = parser.parse_args()
     args.device = torch.device(args.device)
@@ -51,20 +51,26 @@ def main():
     model.eval()
     with torch.no_grad():
         for key in dataset.test_dict.keys():
-            text_tensor = dataset.get_test_data(key)
+            try:
+                text_tensor = dataset.get_test_data(key)
 
-            oupt = model(text_tensor)
-            prob = torch.nn.functional.softmax(oupt, dim=2)
-            prob, pred = torch.max(prob, dim=2)
+                oupt = model(text_tensor)
+                prob = torch.nn.functional.softmax(oupt, dim=2)
+                prob, pred = torch.max(prob, dim=2)
 
-            prob = prob.squeeze().cpu().numpy()
-            pred = pred.squeeze().cpu().numpy()
+                prob = prob.squeeze().cpu().numpy()
+                pred = pred.squeeze().cpu().numpy()
 
-            real_text = dataset.test_dict[key]
-            result = pred_to_dict(real_text, pred, prob)
+                real_text = dataset.test_dict[key]
+                result = pred_to_dict(real_text, pred, prob)
 
-            with open("results/" + key + ".json", "w", encoding="utf-8") as json_opened:
-                json.dump(result, json_opened, indent=4)
+                with open("results/" + key + ".json", "w", encoding="utf-8") as json_opened:
+                    json.dump(result, json_opened, indent=4)
+
+                print(key)
+
+            except RuntimeError:
+                print(key, "RuntimeError encountered")
 
 
 def validate(model, dataset, batch_size=1):
