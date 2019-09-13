@@ -43,7 +43,9 @@ def robust_padding(texts, labels):
         pad_after = maxlen - pad_before - len(text)
 
         texts[i] = random_string(pad_before) + text + random_string(pad_after)
-        labels[i] = numpy.pad(labels[i], (pad_before, pad_after), "constant", constant_values=0)
+        labels[i] = numpy.pad(
+            labels[i], (pad_before, pad_after), "constant", constant_values=0
+        )
 
 
 def random_string(n):
@@ -60,7 +62,9 @@ def random_string(n):
     elif x > 0.1:
         pad = "".join(random.choices(ascii_uppercase + digits + " \t\n", k=n))
     else:
-        pad = "".join(random.choices(ascii_uppercase + digits + punctuation + " \t\n", k=n))
+        pad = "".join(
+            random.choices(ascii_uppercase + digits + punctuation + " \t\n", k=n)
+        )
 
     return pad
 

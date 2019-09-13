@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+
 class MyModel0(nn.Module):
     def __init__(self, vocab_size, embed_size, hidden_size):
         super().__init__()

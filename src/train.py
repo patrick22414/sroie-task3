@@ -24,7 +24,10 @@ def main():
     model = MyModel0(len(VOCAB), 16, args.hidden_size).to(args.device)
 
     dataset = MyDataset(
-        "data/data_dict4.pth", args.device, val_size=args.val_size, test_path="data/test_dict.pth"
+        "data/data_dict4.pth",
+        args.device,
+        val_size=args.val_size,
+        test_path="data/test_dict.pth",
     )
 
     criterion = nn.CrossEntropyLoss(

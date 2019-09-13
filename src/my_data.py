@@ -18,7 +18,9 @@ VOCAB = ascii_uppercase + digits + punctuation + " \t\n"
 
 
 class MyDataset(data.Dataset):
-    def __init__(self, dict_path="data/data_dict.pth", device="cpu", val_size=76, test_path=None):
+    def __init__(
+        self, dict_path="data/data_dict.pth", device="cpu", val_size=76, test_path=None
+    ):
         if dict_path is None:
             self.val_dict = {}
             self.train_dict = {}
@@ -72,7 +74,8 @@ class MyDataset(data.Dataset):
         maxlen = max(len(s) for s in texts)
         texts = [s.ljust(maxlen, " ") for s in texts]
         labels = [
-            numpy.pad(a, (0, maxlen - len(a)), mode="constant", constant_values=0) for a in labels
+            numpy.pad(a, (0, maxlen - len(a)), mode="constant", constant_values=0)
+            for a in labels
         ]
 
         text_tensor = torch.zeros(maxlen, batch_size, dtype=torch.long)
@@ -88,10 +91,12 @@ class MyDataset(data.Dataset):
 
 def get_files(data_path="data/"):
     json_files = sorted(
-        (f for f in os.scandir(data_path) if f.name.endswith(".json")), key=lambda f: f.path
+        (f for f in os.scandir(data_path) if f.name.endswith(".json")),
+        key=lambda f: f.path,
     )
     txt_files = sorted(
-        (f for f in os.scandir(data_path) if f.name.endswith(".txt")), key=lambda f: f.path
+        (f for f in os.scandir(data_path) if f.name.endswith(".txt")),
+        key=lambda f: f.path,
     )
 
     assert len(json_files) == len(txt_files)
@@ -152,7 +157,9 @@ def create_data(data_path="tmp/data/"):
         for i, k in enumerate(iter(key_info)):
             v = key_info[k]
             if k == "total":
-                s = regex.search(r"(\bTOTAL[^C]*ROUND[^C]*)(" + v + r")(\b)", text_space)
+                s = regex.search(
+                    r"(\bTOTAL[^C]*ROUND[^C]*)(" + v + r")(\b)", text_space
+                )
                 if s is None:
                     s = regex.search(r"(\bTOTAL[^C]*)(" + v + r")(\b)", text_space)
                     if s is None:
@@ -167,7 +174,9 @@ def create_data(data_path="tmp/data/"):
                     e = 0
                     while s is None and e < 3:
                         e += 1
-                        s = regex.search(r"(\b" + v + r"\b){e<=" + str(e) + r"}", text_space)
+                        s = regex.search(
+                            r"(\b" + v + r"\b){e<=" + str(e) + r"}", text_space
+                        )
                     v = s[0]
 
                 pos = text_space.find(v)
